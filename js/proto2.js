@@ -91,11 +91,20 @@ var mainState ={
 			);
 		wall2.body.immovable = true;
 
+		var wall3 = this.walls.create(game.world.width -20, 0, 
+			box({
+				length: 20,
+				width: game.world.height,
+				color: '#374A59'
+			})
+			);
+		wall3.body.immovable = true;
+
 		//group of enemies
 		this.enemies = game.add.group();
 		this.enemies.enableBody = true;
 
-		var enemy1 = this.enemies.create(game.world.width - 500, game.world.height - 65, 
+		this.enemy1 = this.enemies.create(game.world.width - 500, game.world.height - 65, 
 			box({
 				length: 32,
 				width: 32,
@@ -103,10 +112,11 @@ var mainState ={
 			})
 			);
 		//add gravity and bounce to enemy
-        enemy1.body.gravity.y = 300;
-        enemy1.body.bounce.y = 0.7 + Math.random()* 0.2;
+        this.enemy1.body.gravity.y = 300;
+        this.enemy1.body.bounce.y = 1;
+        this.enemy1.body.velocity.x = 150;	
 
-		var enemy2 = this.enemies.create(game.world.width - 300, game.world.height - 65, 
+		this.enemy2 = this.enemies.create(game.world.width - 300, game.world.height - 65, 
 			box({
 				length: 32,
 				width: 32,
@@ -115,8 +125,9 @@ var mainState ={
 			);
 
 		//add gravity and bounce to enemy
-        enemy2.body.gravity.y = 300;
-        enemy2.body.bounce.y = 0.7 + Math.random()* 0.2;			
+        this.enemy2.body.gravity.y = 300;
+        this.enemy2.body.bounce.y = 1;	
+        this.enemy2.body.velocity.x = 150;		
 	},
 
 	update: function(){
@@ -145,6 +156,23 @@ var mainState ={
 			this.player.body.velocity.x += speed; 
 		}
 
+		//enemies movements
+
+		if (this.enemy1.body.touching.right){
+			this.enemy1.body.velocity.x = -150;
+		}
+
+		else if (this.enemy1.body.touching.left){
+			this.enemy1.body.velocity.x = 150;
+		}
+
+		if (this.enemy2.body.touching.right){
+			this.enemy2.body.velocity.x = -150;
+		}
+
+		else if (this.enemy2.body.touching.left){
+			this.enemy2.body.velocity.x = 150;
+		}
 	},
 
 	handlePlayerDeath: function(player, enemy){
