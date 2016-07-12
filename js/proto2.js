@@ -12,6 +12,9 @@ var box = function(options){
 };
 
 var mainState ={
+	preload: function(){
+		game.load.spritesheet('player','assets/sprites/player.png', 25, 32);
+	},
 	create: function(){
 		score = 0;
 		game.stage.backgroundColor = '#BDC2C5';
@@ -19,18 +22,21 @@ var mainState ={
 		game.world.enableBody = true;
 
 		//create player
-		this.player = game.add.sprite(0, game.world.height -65, box({
-			length: 32,
-			width: 32,
-			color: '#fff'
-		})
-		);
+		//this.player = game.add.sprite(0, game.world.height -65, box({
+		//	length: 32,
+		//	width: 32,
+		//	color: '#fff'
+		//})
+		//);
+		this.player = game.add.sprite(0, game.world.height - 65, 'player'),
 
 		//player settings
 		game.physics.arcade.enable(this.player);
     	this.player.body.bounce.y = 0.1;
     	this.player.body.gravity.y = 600;
     	this.player.body.collideWorldBounds = true;
+    	this.player.animations.add('left', [6, 5, 4, 3, 2, 1, 0], 10, true);
+        this.player.animations.add('right', [7, 8, 9, 10, 11, 12, 13], 10, true);
 
 		//create cursor object
 		this.cursor = game.input.keyboard.createCursorKeys();
@@ -151,7 +157,7 @@ var mainState ={
 
 	update: function(){
 
-		var speed = 250;
+		var speed = 150;
 		if (score >= 400){
 			game.state.start('youWin');
 		}
@@ -179,10 +185,17 @@ var mainState ={
 		}
 		else if (this.cursor.left.isDown){
 			this.player.body.velocity.x -= speed;
+			this.player.animations.play('left');
 		}
 		else if (this.cursor.right.isDown){
-			this.player.body.velocity.x += speed; 
+			this.player.body.velocity.x += speed;
+			this.player.animations.play('right'); 
 		}
+		 else
+	    {
+	        this.player.animations.stop();
+	        this.player.frame = 6;
+	    }
 
 		//enemies movements
 
