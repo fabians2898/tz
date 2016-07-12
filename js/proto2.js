@@ -17,15 +17,18 @@ var mainState ={
 		game.world.enableBody = true;
 
 		//create player
-		this.player = game.add.sprite(32, 32, box({
+		this.player = game.add.sprite(0, game.world.height -65, box({
 			length: 32,
 			width: 32,
-			color: '#4F616E'
+			color: '#fff'
 		})
 		);
 
 		//player settings
-		this.player.body.collideWorldBounds = true;
+		game.physics.arcade.enable(this.player);
+    	this.player.body.bounce.y = 0.1;
+    	this.player.body.gravity.y = 600;
+    	this.player.body.collideWorldBounds = true;
 
 		//create cursor object
 		this.cursor = game.input.keyboard.createCursorKeys();
@@ -52,7 +55,7 @@ var mainState ={
 			);
 		platform1.body.immovable = true;
 
-		var platform2 = this.walls.create(game.world.width - 600, game.world.height - 380, 
+		var platform2 = this.walls.create(game.world.width - 600, game.world.height - 360, 
 			box({
 				length: 350,
 				width: 30,
@@ -91,7 +94,7 @@ var mainState ={
 		//group of enemies
 		this.enemies = game.add.group();
 		this.enemies.enableBody = true;
-		
+
 		var enemy1 = this.enemies.create(game.world.width - 500, game.world.height - 65, 
 			box({
 				length: 32,
@@ -117,24 +120,8 @@ var mainState ={
 	},
 
 	update: function(){
+
 		var speed = 250;
-		this.player.body.velocity.y = 0;
-		this.player.body.velocity.x = 0;
-
-		if (this.cursor.up.isDown){
-			this.player.body.velocity.y -= speed;
-		}
-		else if (this.cursor.down.isDown){
-			this.player.body.velocity.y += speed; 
-		}
-
-		if (this.cursor.left.isDown){
-			this.player.body.velocity.x -= speed;
-		}
-		else if (this.cursor.right.isDown){
-			this.player.body.velocity.x += speed; 
-		}
-
 		//enable collision between player and walls
 		game.physics.arcade.collide(this.player, this.walls);
 
@@ -144,6 +131,20 @@ var mainState ={
 		//player death if touch an enemy
 		game.physics.arcade.collide(this.player, this.enemies, 
 			this.handlePlayerDeath, null, this);
+		
+		//player movements
+		this.player.body.velocity.x = 0;
+
+		if (this.cursor.up.isDown && this.player.body.touching.down){
+			this.player.body.velocity.y = -450;
+		}
+		else if (this.cursor.left.isDown){
+			this.player.body.velocity.x -= speed;
+		}
+		else if (this.cursor.right.isDown){
+			this.player.body.velocity.x += speed; 
+		}
+
 	},
 
 	handlePlayerDeath: function(player, enemy){
