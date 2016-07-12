@@ -1,4 +1,5 @@
 var game = new Phaser.Game(1000,500);
+var score;
 
 //create a generic box, works nice for prototyping
 var box = function(options){
@@ -12,6 +13,7 @@ var box = function(options){
 
 var mainState ={
 	create: function(){
+		score = 0;
 		game.stage.backgroundColor = '#BDC2C5';
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 		game.world.enableBody = true;
@@ -127,21 +129,47 @@ var mainState ={
 		//add gravity and bounce to enemy
         this.enemy2.body.gravity.y = 300;
         this.enemy2.body.bounce.y = 1;	
-        this.enemy2.body.velocity.x = 150;		
+        this.enemy2.body.velocity.x = 150;
+
+        //group rewards
+        this.rewards = game.add.group()
+        this.rewards.enableBody = true;
+
+        for (var i =0; i<=10; i++ ){
+        	var reward = this.rewards.create(i*250, 0, box({
+				length: 32,
+				width: 32,
+				color: '#000'
+			}));
+	        reward.body.gravity.y = 300;
+	        reward.body.bounce.y = 0.5;
+        }
+
+        //the score
+    	this.scoreText = game.add.text(16, 16, 'Score: 0',{fontSize: '32px', fill: '#000'});		
 	},
 
 	update: function(){
 
 		var speed = 250;
+		if (score >= 400){
+			game.state.start('youWin');
+		}
 		//enable collision between player and walls
 		game.physics.arcade.collide(this.player, this.walls);
 
 		//enable collision between enemies and walls
 		game.physics.arcade.collide(this.enemies, this.walls);
 
+		//enable collision between rewards and walls
+		game.physics.arcade.collide(this.rewards, this.walls);
+
 		//player death if touch an enemy
 		game.physics.arcade.collide(this.player, this.enemies, 
 			this.handlePlayerDeath, null, this);
+
+		game.physics.arcade.collide(this.player, this.rewards,
+			this.collectRewards, null, this);
 		
 		//player movements
 		this.player.body.velocity.x = 0;
@@ -178,6 +206,12 @@ var mainState ={
 	handlePlayerDeath: function(player, enemy){
 		player.kill();
 		game.state.start('gameOver');
+	},
+
+	collectRewards: function(player, reward){
+		reward.kill();
+		score += 100;
+    	this.scoreText.text = 'Score: ' + score;
 	}
 };
 
@@ -196,6 +230,29 @@ var gameOverState ={
 	},
 	update: function(){
 		if (this.spacebar.isDown)
+		{	
+			game.state.start('main');
+		}
+
+	}
+
+};
+
+var youWin ={
+	create: function(){
+		this.spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		label = game.add.text(game.world.width / 2, game.world.height / 2,
+			'YOU WIN\nPress SPACE to restart',
+			{
+				font: '22px Arial',
+				fill: '#fff',
+				align: 'center'
+			}
+		),
+		label.anchor.setTo(0.5, 0.5);
+	},
+	update: function(){
+		if (this.spacebar.isDown)
 		{
 			game.state.start('main');
 		}
@@ -204,6 +261,8 @@ var gameOverState ={
 
 };
 
+
 game.state.add('main', mainState);
 game.state.add('gameOver', gameOverState);
+game.state.add('youWin', youWin);
 game.state.start('main');
